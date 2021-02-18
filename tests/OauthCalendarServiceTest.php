@@ -40,6 +40,7 @@ class OauthCalendarServiceTest extends TestCase
     {
         $this->client->allows()->setRedirectUri('https://example.com/callback');
         $this->client->allows()->setAccessType('offline');
+        $this->client->allows()->setApprovalPrompt('auto');
         $this->client->allows()->addScope('abcd');
         $this->client->allows()->addScope('efgh');
         $this->client->allows()->createAuthUrl()->andReturns('https://example.com/oauth');

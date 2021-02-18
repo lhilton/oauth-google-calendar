@@ -8,6 +8,7 @@ use Google_Service_Calendar_Event;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Userinfo;
 use Niisan\Laravel\GoogleCalendar\Models\Token;
+use RuntimeException;
 
 class OauthCalendarService
 {
@@ -44,11 +45,12 @@ class OauthCalendarService
      * @param string $redirect
      * @return string
      */
-    public function getAuthUri(string $redirect = null): string
+    public function getAuthUri(string $redirect = null, $forece_approval_prompt = false): string
     {
         $redirect = $redirect ?? config('google-calendar.redirect');
         $this->client->setRedirectUri($redirect);
         $this->client->setAccessType('offline');
+        $this->client->setApprovalPrompt(($forece_approval_prompt) ? 'forece': 'auto');
         foreach (config('google-calendar.scopes') as $scope) {
             $this->client->addScope($scope);
         }
@@ -64,6 +66,7 @@ class OauthCalendarService
     public function getTokenByCode(string $code): Token
     {
         $token = $this->client->fetchAccessTokenWithAuthCode($code);
+        $this->checkTokenError($token);
         return new Token($token);
     }
 
@@ -208,5 +211,16 @@ class OauthCalendarService
         }
 
         return $ret;
+    }
+
+    private function checkTokenError(array $response)
+    {
+        if (isset($response['error'])) {
+            $err = 'Return Error Message: ';
+            foreach ($response as $key => $val) {
+                $err .= "$key: $val, ";
+            }
+            throw new RuntimeException($err);
+        }
     }
 }

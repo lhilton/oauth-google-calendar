@@ -14,7 +14,8 @@ class OauthCalendarServiceProvider extends ServiceProvider
         $this->app->singleton(OauthCalendarService::class, function () {
             $client = new Client([
                 'client_id' => config('google-calendar.client_id'),
-                'client_secret' => config('google-calendar.client_secret')
+                'client_secret' => config('google-calendar.client_secret'),
+                'redirect_url' => config('google-calendar.redirect')
             ]);
             $oauth_service = new Google_Service_Oauth2($client);
             $calendar_service = new Google_Service_Calendar($client);
