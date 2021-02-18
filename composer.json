@@ -1,0 +1,30 @@
+{
+    "name": "niisan/laravel-oauth-google-calendar",
+    "description": "Using Google Calendar Api by using OAuth in Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "google/apiclient": "^2.9",
+        "nesbot/carbon": "^2.0",
+        "illuminate/support": "^8.27"
+    },
+    "autoload": {
+        "psr-4": {
+            "Niisan\\Laravel\\GoogleCalendar\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Niisan\\Laravel\\GoogleCalendar\\OauthCalendarServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "mockery/mockery": "^1.4"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "name": "test-laravel-sms",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "workspace",
+    "workspaceFolder": "/var/www",
+    "settings": {
+        "editor.tabSize": 4
+    },
+	"shutdownAction": "stopCompose",
+	"extensions": [
+		"damianbal.vs-phpclassgen",
+		"neilbrayfield.php-docblocker",
+		"bmewburn.vscode-intelephense-client"
+	]
+}
