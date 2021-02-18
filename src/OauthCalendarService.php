@@ -43,9 +43,10 @@ class OauthCalendarService
      * Get Oauth authorize url.
      *
      * @param string $redirect
+     * @param bool   $forece_approval_prompt true: user must authorize prompt
      * @return string
      */
-    public function getAuthUri(string $redirect = null, $forece_approval_prompt = false): string
+    public function getAuthUri(string $redirect = null, bool $forece_approval_prompt = false): string
     {
         $redirect = $redirect ?? config('google-calendar.redirect');
         $this->client->setRedirectUri($redirect);
