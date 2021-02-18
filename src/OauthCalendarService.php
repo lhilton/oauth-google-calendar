@@ -50,7 +50,7 @@ class OauthCalendarService
         $redirect = $redirect ?? config('google-calendar.redirect');
         $this->client->setRedirectUri($redirect);
         $this->client->setAccessType('offline');
-        $this->client->setApprovalPrompt(($forece_approval_prompt) ? 'forece': 'auto');
+        $this->client->setApprovalPrompt(($forece_approval_prompt) ? 'force': 'auto');
         foreach (config('google-calendar.scopes') as $scope) {
             $this->client->addScope($scope);
         }

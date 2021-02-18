@@ -1,6 +1,7 @@
 <?php
 return [
     'scopes' => [
+        'profile',
         'email',
         'https://www.googleapis.com/auth/calendar.events',
     ],
