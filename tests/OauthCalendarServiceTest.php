@@ -71,6 +71,7 @@ class OauthCalendarServiceTest extends TestCase
             'refresh_token' => 'qwsdft',
             'expires_in' => 3600
         ]);
+        $this->client->allows()->setAccessToken('ljljdes');
         Carbon::setTestNow(Carbon::createFromTimestamp(1613595932));
         $this->client->expects()->fetchAccessTokenWithRefreshToken('qwsdft')->andReturn([
             'access_token' => 'ljljdesfad',
@@ -113,11 +114,12 @@ class OauthCalendarServiceTest extends TestCase
 
         Carbon::setTestNow(Carbon::createFromTimestamp(1613575932));
         $token = new Token([
-            'access_token' => 'ljljdes',
+            'access_token' => 'ljljaes',
             'refresh_token' => 'qwsdft',
             'expires_in' => 3600
         ]);
         date_default_timezone_set('Asia/Tokyo');
+        $this->client->allows()->setAccessToken('ljljaes');
 
         $list = $this->service->getEventList($token, ['timeMin' => '2021-01-01 12:00:00', 'timeMax' => '2021-02-01 12:00:00']);
 
@@ -134,6 +136,7 @@ class OauthCalendarServiceTest extends TestCase
             'refresh_token' => 'qwsdft',
             'expires_in' => 3600
         ]);
+        $this->client->allows()->setAccessToken('ljljdes');
         $this->calendar->shouldReceive('insert')->andReturnUsing(function($a, $b) {
             return $b;
         });
@@ -158,6 +161,7 @@ class OauthCalendarServiceTest extends TestCase
             'refresh_token' => 'qwsdft',
             'expires_in' => 3600
         ]);
+        $this->client->allows()->setAccessToken('ljljdes');
 
         $this->calendar->expects()->delete('primary', '1212');
         $this->service->deleteEvent($token, '1212');
@@ -172,6 +176,7 @@ class OauthCalendarServiceTest extends TestCase
             'refresh_token' => 'qwsdft',
             'expires_in' => 3600
         ]);
+        $this->client->allows()->setAccessToken('ljljdes');
         Carbon::setTestNow(Carbon::createFromTimestamp(1613595932));
         $this->client->expects()->fetchAccessTokenWithRefreshToken('qwsdft')->andReturn([
             'access_token' => 'ljljdesfad',

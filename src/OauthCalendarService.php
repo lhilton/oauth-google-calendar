@@ -163,6 +163,7 @@ class OauthCalendarService
     private function setAccessToken($user):void
     {
         $this->checkUser($user);
+        $this->client->setAccessToken($user->access_token);
         if (Carbon::now()->timestamp >= $user->expires - 30) {
             $token = $this->client->fetchAccessTokenWithRefreshToken($user->refresh_token);
             $token['expires'] = Carbon::now()->timestamp + $token['expires_in'];
