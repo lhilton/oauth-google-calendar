@@ -54,11 +54,16 @@ return [
     'client_secret' => env('GOOGLE_CALENDAR_CLIENT_SECRET', ''),
     'events' => [
         'token_refreshed' => ''
-    ]
+    ],
+    'holiday_id' => env('GOOGLE_CALENDAR_HOLIDAY_ID', 'japanese__ja@holiday.calendar.google.com'),
 ];
 ```
 `client_id` and `client_secret` are from Google OAuth user. 
+
+`holiday_id` is your county's calendar id offering holidays.
+
 `events.token_refreshed` can define a event when token refreshed in this package.
+
 
 For example,
 
@@ -116,7 +121,14 @@ This method create user's event. `$data` is a event content.
 ```php
 $data = [
     'summary' => 'abcd',
+    'description' => 'efgh',
     'start' => '2021-02-21 12:00:00',
     'end' => '2021-02-21 13:00:00'
 ];
 ```
+
+### updateEvent
+this method update user's event. `$data` is same as createEvent's and put null for values that do not need to be updated.
+
+### getHolidays
+This method offers you your country's holidays.
