@@ -2,11 +2,14 @@
 namespace Niisan\Laravel\GoogleCalendar;
 
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Google\Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
+use Google_Service_Calendar_EventDateTime;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Userinfo;
+use Illuminate\Support\Facades\Date;
 use Niisan\Laravel\GoogleCalendar\Models\Token;
 use RuntimeException;
 
@@ -128,6 +131,7 @@ class OauthCalendarService
     {
         $event = new Google_Service_Calendar_Event([
             'summary' => $data['summary'],
+            'description' => $data['description'] ?? null,
             'start' => [
                 'dateTime' => Carbon::parse($data['start'])->format(DATE_RFC3339)
             ],
@@ -141,6 +145,41 @@ class OauthCalendarService
     }
 
     /**
+     * update event.
+     * allowed params are summary, description, start, and end.
+     * start and end params must be date format string.
+     *
+     * @param [type] $user
+     * @param string $event_id
+     * @param array $data
+     * @return Google_Service_Calendar_Event
+     */
+    public function updateEvent($user, string $event_id, array $data): Google_Service_Calendar_Event
+    {
+        $this->setAccessToken($user);
+        $event = $this->calendar_service->events->get('primary', $event_id);
+        
+        if (isset($data['summary'])) {
+            $event->setSummary($data['summary']);
+        }
+
+        if (isset($data['description'])) {
+            $event->setDescription($data['description']);
+        }
+
+        if (isset($data['start'])) {
+            $event->setStart($this->createDateObject($data['start']));
+        }
+
+        if (isset($data['end'])) {
+            $event->setEnd($this->createDateObject($data['end']));
+        }
+
+        $updated_event = $this->calendar_service->events->update('primary', $event_id, $event);
+        return $updated_event;
+    }
+
+    /**
      * delete event
      *
      * @param $user
@@ -151,6 +190,32 @@ class OauthCalendarService
     {
         $this->setAccessToken($user);
         return $this->calendar_service->events->delete('primary', $event_id);
+    }
+
+    /**
+     * get holiday list.
+     *
+     * @param [type] $user
+     * @param [type] $date
+     * @param integer $span
+     * @return void
+     */
+    public function getHolidays($user, $date = null, $span = 365)
+    {
+        $this->setAccessToken($user);
+        $start = ($date) ? CarbonImmutable::parse($date): CarbonImmutable::now()->firstOfYear();
+        $end = $start->addDays($span);
+        $events = $this->calendar_service->events->listEvents(config('google-calendar.holiday_id'), [
+            'timeMax' => $end->format(DATE_RFC3339),
+            'timeMin' => $start->format(DATE_RFC3339)
+        ]);
+
+        $ret = [];
+        foreach ($events->getItems() as $event) {
+            $ret[$event->start->date] = $event->getSummary();
+        }
+
+        return $ret;
     }
 
     /**
@@ -224,5 +289,18 @@ class OauthCalendarService
             }
             throw new RuntimeException($err);
         }
+    }
+
+    /**
+     * create datetime object for google calendar service.
+     *
+     * @param string $date
+     * @return Google_Service_Calendar_EventDateTime
+     */
+    private function createDateObject(string $date): Google_Service_Calendar_EventDateTime
+    {
+        $obj = new Google_Service_Calendar_EventDateTime;
+        $obj->setDateTime(Carbon::parse($date)->format(DATE_RFC3339));
+        return $obj;
     }
 }

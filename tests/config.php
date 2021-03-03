@@ -7,7 +7,8 @@ class DummyConfig
         'google-calendar.scopes' => [
             'abcd', 'efgh'
         ],
-        'google-calendar.events.token_refreshed' => ''
+        'google-calendar.events.token_refreshed' => '',
+        'google-calendar.holiday_id' => 'holiday_id',
     ];
 
     public static function get($name)

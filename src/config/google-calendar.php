@@ -10,5 +10,6 @@ return [
     'client_secret' => env('GOOGLE_CALENDAR_CLIENT_SECRET', ''),
     'events' => [
         'token_refreshed' => ''
-    ]
+    ],
+    'holiday_id' => env('GOOGLE_CALENDAR_HOLIDAY_ID', 'japanese__ja@holiday.calendar.google.com'),
 ];

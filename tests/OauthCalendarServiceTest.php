@@ -200,6 +200,82 @@ class OauthCalendarServiceTest extends TestCase
 
     }
 
+    public function test_updateEvent()
+    {
+        Carbon::setTestNow(Carbon::createFromTimestamp(1613575932));
+        $token = new Token([
+            'access_token' => 'ljljdes',
+            'refresh_token' => 'qwsdft',
+            'expires_in' => 3600
+        ]);
+        $this->client->allows()->setAccessToken('ljljdes');
+        $original = new Google_Service_Calendar_Event([
+            'summary' => '0123456',
+            'description' => '456789',
+            'start' => [
+                'dateTime' => Carbon::parse('2021-01-01 08:00:00')->format(DATE_RFC3339)
+            ],
+            'end' => [
+                'dateTime' => Carbon::parse('2021-01-01 09:00:00')->format(DATE_RFC3339)
+            ]
+        ]);
+        $update = [
+            'summary' => 'abcd',
+            'description' => 'ghjk',
+            'start' => '2021-01-01 12:00:00',
+            'end' => '2021-01-01 13:00:00'
+        ];
+        $this->calendar->allows()->get('primary', 'abcdefghijk')->andReturn($original);
+        $this->calendar->allows()->update('primary', 'abcdefghijk', $original)->andReturn($original);
+
+        $event = $this->service->updateEvent($token, 'abcdefghijk', $update);
+        $this->assertEquals('abcd', $event->getSummary());
+        $this->assertEquals('ghjk', $event->getDescription());
+        $this->assertEquals('2021-01-01T12:00:00+09:00', $event->start->dateTime);
+        $this->assertEquals('2021-01-01T13:00:00+09:00', $event->end->dateTime);
+    }
+
+    public function test_getHoliday()
+    {
+        Carbon::setTestNow(Carbon::createFromTimestamp(1613575932));
+        $token = new Token([
+            'access_token' => 'ljljdes',
+            'refresh_token' => 'qwsdft',
+            'expires_in' => 3600
+        ]);
+        $this->client->allows()->setAccessToken('ljljdes');
+        $event1 = new Google_Service_Calendar_Event([
+            'summary' => 'abcd',
+            'start' => [
+                'date' => '2021-05-01'
+            ],
+            'end' => [
+                'date' => '2021-05-01'
+            ]
+        ]);
+        $event2 = new Google_Service_Calendar_Event([
+            'summary' => 'efgh',
+            'start' => [
+                'date' => '2021-06-01'
+            ],
+            'end' => [
+                'date' => '2021-06-01'
+            ]
+        ]);
+        $list1 = new Google_Service_Calendar_Events;
+        $list1->setItems([$event1, $event2]);
+        $this->calendar->allows()->listEvents('holiday_id', [
+            'timeMin' => '2021-01-01T00:00:00+09:00',
+            'timeMax' => '2022-01-01T00:00:00+09:00',
+        ])->andReturn($list1);
+
+        $list = $this->service->getHolidays($token);
+        $this->assertEquals([
+            '2021-05-01' => 'abcd',
+            '2021-06-01' => 'efgh'
+        ], $list);
+    }
+
     public function tearDown(): void
     {
         Mockery::close();

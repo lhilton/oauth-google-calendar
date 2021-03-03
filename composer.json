@@ -30,6 +30,6 @@
         "mockery/mockery": "^1.4"
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit tests/"
     }
 }
