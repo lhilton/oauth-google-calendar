@@ -104,12 +104,14 @@ class OauthCalendarServiceTest extends TestCase
 
         $this->calendar->allows()->listEvents('primary', [
                 'timeMax' => '2021-02-01T12:00:00+09:00',
-                'timeMin' => '2021-01-01T12:00:00+09:00'
+                'timeMin' => '2021-01-01T12:00:00+09:00',
+                'singleEvents' => true
         ])->andReturn($list1);
         $this->calendar->allows()->listEvents('primary', [
                 'timeMin' => '2021-01-01T12:00:00+09:00',
                 'timeMax' => '2021-02-01T12:00:00+09:00',
-                'pageToken' => 'abcdefghi'
+                'pageToken' => 'abcdefghi',
+                'singleEvents' => true
         ])->andReturn($list2);
 
         Carbon::setTestNow(Carbon::createFromTimestamp(1613575932));
@@ -121,7 +123,10 @@ class OauthCalendarServiceTest extends TestCase
         date_default_timezone_set('Asia/Tokyo');
         $this->client->allows()->setAccessToken('ljljaes');
 
-        $list = $this->service->getEventList($token, ['timeMin' => '2021-01-01 12:00:00', 'timeMax' => '2021-02-01 12:00:00']);
+        $list = $this->service->getEventList($token, [
+            'timeMin' => '2021-01-01 12:00:00',
+            'timeMax' => '2021-02-01 12:00:00',
+        ]);
 
         $this->assertEquals($event1, $list[0]);
         $this->assertEquals($event2, $list[1]);

@@ -112,8 +112,10 @@ $config = [
     'timeZone' => 'Asia/Tokyo',
     'updatedMin' => null
     'maxResults' => 150,
+    'singleEvents' => true
 ];
 ```
+All parameters are optional.
 
 ### createEvent
 This method create user's event. `$data` is a event content.

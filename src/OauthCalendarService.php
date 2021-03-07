@@ -49,7 +49,7 @@ class OauthCalendarService
      * @param bool   $forece_approval_prompt true: user must authorize prompt
      * @return string
      */
-    public function getAuthUri(string $redirect = null, bool $forece_approval_prompt = false): string
+    public function getAuthUri(string $redirect = null, bool $forece_approval_prompt = true): string
     {
         $redirect = $redirect ?? config('google-calendar.redirect');
         $this->client->setRedirectUri($redirect);
@@ -269,6 +269,7 @@ class OauthCalendarService
             'timeZone' => $config['timeZone'] ?? null,
             'updatedMin' => (isset($config['updatedMin'])) ? Carbon::parse($config['updatedMin'])->format(DATE_RFC3339): null,
             'maxResults' => $config['maxResults'] ?? null,
+            'singleEvents' => $config['singleEvents'] ?? true,
         ];
 
         foreach (array_keys($ret) as $key) {
