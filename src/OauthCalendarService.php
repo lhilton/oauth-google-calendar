@@ -145,6 +145,19 @@ class OauthCalendarService
     }
 
     /**
+     * get event.
+     *
+     * @param [type] $user
+     * @param string $event_id
+     * @return Google_Service_Calendar_Event
+     */
+    public function getEvent($user, string $event_id): Google_Service_Calendar_Event
+    {
+        $this->setAccessToken($user);
+        return $this->calendar_service->events->get('primary', $event_id);
+    }
+
+    /**
      * update event.
      * allowed params are summary, description, start, and end.
      * start and end params must be date format string.
@@ -156,8 +169,7 @@ class OauthCalendarService
      */
     public function updateEvent($user, string $event_id, array $data): Google_Service_Calendar_Event
     {
-        $this->setAccessToken($user);
-        $event = $this->calendar_service->events->get('primary', $event_id);
+        $event = $this->getEvent($user, $event_id);
 
         if (isset($data['summary'])) {
             $event->setSummary($data['summary']);
