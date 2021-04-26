@@ -93,9 +93,9 @@ class OauthCalendarService
 
     /**
      * get event list
-     * 
+     *
      * @param mixed $user
-     * 
+     *
      * @return Google_Service_Calendar_Event[]
      */
     public function getEventList($user, $config): array
@@ -105,7 +105,7 @@ class OauthCalendarService
         $events = $this->calendar_service->events->listEvents('primary', $option);
         $ret = [];
 
-        while(true) {
+        while (true) {
             foreach ($events->getItems() as $event) {
                 $ret[] = $event;
             }
@@ -158,7 +158,7 @@ class OauthCalendarService
     {
         $this->setAccessToken($user);
         $event = $this->calendar_service->events->get('primary', $event_id);
-        
+
         if (isset($data['summary'])) {
             $event->setSummary($data['summary']);
         }
@@ -224,9 +224,9 @@ class OauthCalendarService
 
     /**
      * set access token.
-     * 
+     *
      * @param $user
-     * 
+     *
      * @return void
      */
     private function setAccessToken($user):void
