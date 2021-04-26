@@ -175,6 +175,10 @@ class OauthCalendarService
             $event->setEnd($this->createDateObject($data['end']));
         }
 
+        if (isset($data['status'])) {
+            $event->setStatus($data['status']);
+        }
+
         $updated_event = $this->calendar_service->events->update('primary', $event_id, $event);
         return $updated_event;
     }
