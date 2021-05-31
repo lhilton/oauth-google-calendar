@@ -7,6 +7,7 @@ use Google\Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_EventDateTime;
+use Google_Service_Calendar_FreeBusyRequest;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Userinfo;
 use Illuminate\Support\Facades\Date;
@@ -215,6 +216,33 @@ class OauthCalendarService
             $ret[$event->start->date] = $event->getSummary();
         }
 
+        return $ret;
+    }
+
+    /**
+     * get User's free busy info.
+     *
+     * @param $user
+     * @param array $config
+     * @return Google_Service_Calendar_FreeBusyResponse
+     */
+    public function getFreeBusy($user, $config)
+    {
+        $this->setAccessToken($user);
+        $items = $config['items'] ?? ['primary'];
+        $req = new Google_Service_Calendar_FreeBusyRequest([
+            'timeMax' => (isset($config['timeMax'])) ? Carbon::parse($config['timeMax'])->format(DATE_RFC3339): null,
+            'timeMin' => (isset($config['timeMin'])) ? Carbon::parse($config['timeMin'])->format(DATE_RFC3339): null,
+            'items' => $items
+        ]);
+        $res = $this->calendar_service->freebusy->query($req);
+        $ret = [];
+        foreach ($res->calendars as $calendar) {
+            foreach ($calendar['busy'] as $busy) {
+                $ret[] = ['start' => $busy->start, 'end' => $busy->end];
+            }
+        }
+        
         return $ret;
     }
 

@@ -6,7 +6,10 @@ use Google\Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_Events;
+use Google_Service_Calendar_FreeBusyRequest;
+use Google_Service_Calendar_FreeBusyResponse;
 use Google_Service_Calendar_Resource_Events;
+use Google_Service_Calendar_Resource_Freebusy;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Resource_Userinfo;
 use Google_Service_Oauth2_Userinfo;
@@ -22,6 +25,7 @@ class OauthCalendarServiceTest extends TestCase
     private $client;
     private $oauth;
     private $calendar;
+    private $freebusy;
 
     public function setUp(): void
     {
@@ -29,10 +33,12 @@ class OauthCalendarServiceTest extends TestCase
         $this->client = Mockery::mock(Client::class);
         $this->oauth = Mockery::mock(Google_Service_Oauth2_Resource_Userinfo::class);
         $this->calendar = Mockery::mock(Google_Service_Calendar_Resource_Events::class);
+        $this->freebusy = Mockery::mock(Google_Service_Calendar_Resource_Freebusy::class);
         $oauth = new Google_Service_Oauth2($this->client);
         $oauth->userinfo = $this->oauth;
         $calendar = new Google_Service_Calendar($this->client);
         $calendar->events = $this->calendar;
+        $calendar->freebusy = $this->freebusy;
         $this->service = new OauthCalendarService($this->client, $oauth, $calendar);
     }
 
@@ -40,7 +46,7 @@ class OauthCalendarServiceTest extends TestCase
     {
         $this->client->allows()->setRedirectUri('https://example.com/callback');
         $this->client->allows()->setAccessType('offline');
-        $this->client->allows()->setApprovalPrompt('auto');
+        $this->client->allows()->setApprovalPrompt('force');
         $this->client->allows()->addScope('abcd');
         $this->client->allows()->addScope('efgh');
         $this->client->allows()->createAuthUrl()->andReturns('https://example.com/oauth');
@@ -279,6 +285,49 @@ class OauthCalendarServiceTest extends TestCase
             '2021-05-01' => 'abcd',
             '2021-06-01' => 'efgh'
         ], $list);
+    }
+
+    public function test_getFreeBusy()
+    {
+        Carbon::setTestNow(Carbon::createFromTimestamp(1613575932));
+        $token = new Token([
+            'access_token' => 'ljljdes',
+            'refresh_token' => 'qwsdft',
+            'expires_in' => 3600
+        ]);
+        $this->client->allows()->setAccessToken('ljljdes');
+        $this->freebusy->shouldReceive('query')->andReturn(new Google_Service_Calendar_FreeBusyResponse([
+            'calendars' => [
+                'primary' => [
+                    'busy' => [
+                        [
+                            'start' => '2021-01-01T01:00:00+09:00',
+                            'end' => '2022-01-01T02:00:00+09:00',
+                        ],
+                        [
+                            'start' => '2021-01-01T10:00:00+09:00',
+                            'end' => '2022-01-01T11:00:00+09:00',
+                        ],
+                    ]
+                ]
+            ]
+        ]));
+
+        $ret =$this->service->getFreeBusy($token, [
+            'timeMin' => '2021-01-01 12:00:00',
+            'timeMax' => '2021-01-10 12:00:00'
+        ]);
+
+        $this->assertEquals([
+            [
+                'start' => '2021-01-01T01:00:00+09:00',
+                'end' => '2022-01-01T02:00:00+09:00',
+            ],
+            [
+                'start' => '2021-01-01T10:00:00+09:00',
+                'end' => '2022-01-01T11:00:00+09:00',
+            ],
+        ], $ret);
     }
 
     public function tearDown(): void
