@@ -94,9 +94,9 @@ class OauthCalendarService
 
     /**
      * get event list
-     * 
+     *
      * @param mixed $user
-     * 
+     *
      * @return Google_Service_Calendar_Event[]
      */
     public function getEventList($user, $config): array
@@ -106,7 +106,7 @@ class OauthCalendarService
         $events = $this->calendar_service->events->listEvents('primary', $option);
         $ret = [];
 
-        while(true) {
+        while (true) {
             foreach ($events->getItems() as $event) {
                 $ret[] = $event;
             }
@@ -146,6 +146,19 @@ class OauthCalendarService
     }
 
     /**
+     * get event.
+     *
+     * @param [type] $user
+     * @param string $event_id
+     * @return Google_Service_Calendar_Event
+     */
+    public function getEvent($user, string $event_id): Google_Service_Calendar_Event
+    {
+        $this->setAccessToken($user);
+        return $this->calendar_service->events->get('primary', $event_id);
+    }
+
+    /**
      * update event.
      * allowed params are summary, description, start, and end.
      * start and end params must be date format string.
@@ -157,9 +170,8 @@ class OauthCalendarService
      */
     public function updateEvent($user, string $event_id, array $data): Google_Service_Calendar_Event
     {
-        $this->setAccessToken($user);
-        $event = $this->calendar_service->events->get('primary', $event_id);
-        
+        $event = $this->getEvent($user, $event_id);
+
         if (isset($data['summary'])) {
             $event->setSummary($data['summary']);
         }
@@ -174,6 +186,10 @@ class OauthCalendarService
 
         if (isset($data['end'])) {
             $event->setEnd($this->createDateObject($data['end']));
+        }
+
+        if (isset($data['status'])) {
+            $event->setStatus($data['status']);
         }
 
         $updated_event = $this->calendar_service->events->update('primary', $event_id, $event);
@@ -248,9 +264,9 @@ class OauthCalendarService
 
     /**
      * set access token.
-     * 
+     *
      * @param $user
-     * 
+     *
      * @return void
      */
     private function setAccessToken($user):void
