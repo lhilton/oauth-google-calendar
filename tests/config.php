@@ -9,6 +9,7 @@ class DummyConfig
         ],
         'google-calendar.events.token_refreshed' => '',
         'google-calendar.holiday_id' => 'holiday_id',
+        'app.timezone' => 'Asia/Tokyo'
     ];
 
     public static function get($name)

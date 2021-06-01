@@ -8,6 +8,7 @@ use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_EventDateTime;
 use Google_Service_Calendar_FreeBusyRequest;
+use Google_Service_Calendar_FreeBusyRequestItem;
 use Google_Service_Oauth2;
 use Google_Service_Oauth2_Userinfo;
 use Illuminate\Support\Facades\Date;
@@ -240,17 +241,23 @@ class OauthCalendarService
      *
      * @param $user
      * @param array $config
-     * @return Google_Service_Calendar_FreeBusyResponse
+     * @return array
      */
-    public function getFreeBusy($user, $config)
+    public function getFreeBusy($user, $config): array
     {
         $this->setAccessToken($user);
         $items = $config['items'] ?? ['primary'];
-        $req = new Google_Service_Calendar_FreeBusyRequest([
-            'timeMax' => (isset($config['timeMax'])) ? Carbon::parse($config['timeMax'])->format(DATE_RFC3339): null,
-            'timeMin' => (isset($config['timeMin'])) ? Carbon::parse($config['timeMin'])->format(DATE_RFC3339): null,
-            'items' => $items
-        ]);
+        $req = new Google_Service_Calendar_FreeBusyRequest();
+        $req->setTimeMin(Carbon::parse($config['timeMin'])->format(DATE_RFC3339));
+        $req->setTimeMax(Carbon::parse($config['timeMax'])->format(DATE_RFC3339));
+        $req->setTimeZone($config['timezone'] ?? config('app.timezone', null), null);
+        $reqItems = [];
+        foreach ($items as $item) {
+            $reqItem = new Google_Service_Calendar_FreeBusyRequestItem();
+            $reqItem->setId($item);
+            $reqItems[] = $reqItem;
+        }
+        $req->setItems($reqItems);
         $res = $this->calendar_service->freebusy->query($req);
         $ret = [];
         foreach ($res->calendars as $calendar) {
