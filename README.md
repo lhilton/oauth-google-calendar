@@ -129,6 +129,28 @@ $data = [
 ];
 ```
 
+### getFreeBusy
+
+```php
+public function getFreeBusy($user, $config): array
+```
+This method give you user's busy time. The response type is following:
+
+```php
+[
+    [
+        'start' => '2021-06-01T02:00:00Z'
+        'end' => '2021-06-01T04:00:00Z'
+    ],
+    [
+        'start' => '2021-06-07T02:00:00Z'
+        'end' => '2021-06-07T04:00:00Z'
+    ],
+]
+```
+
+Note that `https://www.googleapis.com/auth/calendar.readonly` is the scope that the `getFreeBusy` method needs to be in.
+
 ### updateEvent
 this method update user's event. `$data` is same as createEvent's and put null for values that do not need to be updated.
 
